@@ -52,6 +52,8 @@ github.com/InjectiveLabs/sdk-go v1.42.4-lens/go.mod h1:gVKlyJDwXQz4PR7QkOITbF89i
 github.com/OneOfOne/xxhash v1.2.2 h1:KMrpdQIwFcEqXDklaen+P1axHaj9BSKzvpUUfnHldSE=
 github.com/OneOfOne/xxhash v1.2.2/go.mod h1:HSdplMjZKSmBqAxg5vPj2TmRDmfkzw+cTzAElWljhcU=
 github.com/StackExchange/wmi v0.0.0-20180116203802-5d049714c4a6 h1:fLjPD/aNc3UIOA6tDi6QXUemppXK3P9BI7mr2hd6gx8=
+github.com/Stride-Labs/lens v0.5.2-patch-eth-cdc-1 h1:ZuQq7rnyPYTBDW7Jj5UubBxXHfnu/SFaYNsolGhXadg=
+github.com/Stride-Labs/lens v0.5.2-patch-eth-cdc-1/go.mod h1:jy2ofqt6nWab2MnzVUZSaJ13Pd84hd+bucin943Oa/s=
 github.com/Stride-Labs/stride/v3 v3.0.0 h1:0+F75pHoRHy2X8CHOWif8W3b0LEU2rbkpodtwD3mka0=
 github.com/Stride-Labs/stride/v3 v3.0.0/go.mod h1:l7kolJBeVTAyrFLm063hnW1KQ9NyGd9rwCoEEjM97JE=
 github.com/VictoriaMetrics/fastcache v1.6.0 h1:C/3Oi3EiBCqufydp1neRZkqcwmEiuRT9c3fqvvgKm5o=
@@ -505,8 +507,6 @@ github.com/spf13/pflag v1.0.5/go.mod h1:McXfInJRrz4CZXVZOBLb0bTZqETkiAhM9Iw0y3An
 github.com/spf13/viper v1.3.2/go.mod h1:ZiWeW+zYFKm7srdB9IoDzzZXaJaI5eL9QjNiN/DMA2s=
 github.com/spf13/viper v1.14.0 h1:Rg7d3Lo706X9tHsJMUjdiwMpHB7W8WnSVOssIY+JElU=
 github.com/spf13/viper v1.14.0/go.mod h1:WT//axPky3FdvXHzGw33dNdXXXfFQqmEalje+egj8As=
-github.com/strangelove-ventures/lens v0.5.2-0.20221212185627-dde22fa11a1c h1:03o6T7udKAFEBUtiNR34ob+UcVFtysENu//xVhqe+n0=
-github.com/strangelove-ventures/lens v0.5.2-0.20221212185627-dde22fa11a1c/go.mod h1:jy2ofqt6nWab2MnzVUZSaJ13Pd84hd+bucin943Oa/s=
 github.com/stretchr/objx v0.1.0/go.mod h1:HFkY916IF+rwdDfMAkV7OtwuqBVzrE8GR6GFx+wExME=
 github.com/stretchr/objx v0.1.1/go.mod h1:HFkY916IF+rwdDfMAkV7OtwuqBVzrE8GR6GFx+wExME=
 github.com/stretchr/objx v0.4.0/go.mod h1:YvHI0jy2hoMjB+UWwv71VJQ9isScKT/TqJzVSSt89Yw=
