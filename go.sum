@@ -52,8 +52,8 @@ github.com/InjectiveLabs/sdk-go v1.42.4-lens/go.mod h1:gVKlyJDwXQz4PR7QkOITbF89i
 github.com/OneOfOne/xxhash v1.2.2 h1:KMrpdQIwFcEqXDklaen+P1axHaj9BSKzvpUUfnHldSE=
 github.com/OneOfOne/xxhash v1.2.2/go.mod h1:HSdplMjZKSmBqAxg5vPj2TmRDmfkzw+cTzAElWljhcU=
 github.com/StackExchange/wmi v0.0.0-20180116203802-5d049714c4a6 h1:fLjPD/aNc3UIOA6tDi6QXUemppXK3P9BI7mr2hd6gx8=
-github.com/Stride-Labs/lens v0.5.2-patch-eth-cdc-1 h1:ZuQq7rnyPYTBDW7Jj5UubBxXHfnu/SFaYNsolGhXadg=
-github.com/Stride-Labs/lens v0.5.2-patch-eth-cdc-1/go.mod h1:jy2ofqt6nWab2MnzVUZSaJ13Pd84hd+bucin943Oa/s=
+github.com/Stride-Labs/lens v0.5.2-patch-injective-cdc h1:renjjXYUzQr70jNkaXN7rbVoWGI4oR8ynVtXwOSTE/g=
+github.com/Stride-Labs/lens v0.5.2-patch-injective-cdc/go.mod h1:jy2ofqt6nWab2MnzVUZSaJ13Pd84hd+bucin943Oa/s=
 github.com/Stride-Labs/stride/v3 v3.0.0 h1:0+F75pHoRHy2X8CHOWif8W3b0LEU2rbkpodtwD3mka0=
 github.com/Stride-Labs/stride/v3 v3.0.0/go.mod h1:l7kolJBeVTAyrFLm063hnW1KQ9NyGd9rwCoEEjM97JE=
 github.com/VictoriaMetrics/fastcache v1.6.0 h1:C/3Oi3EiBCqufydp1neRZkqcwmEiuRT9c3fqvvgKm5o=

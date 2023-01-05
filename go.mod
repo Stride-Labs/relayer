@@ -134,4 +134,4 @@ require (
 
 replace github.com/gogo/protobuf => github.com/regen-network/protobuf v1.3.3-alpha.regen.1
 
-replace github.com/strangelove-ventures/lens => github.com/Stride-Labs/lens v0.5.2-patch-eth-cdc-1
+replace github.com/strangelove-ventures/lens => github.com/Stride-Labs/lens v0.5.2-patch-injective-cdc
