@@ -161,3 +161,5 @@ require (
 replace github.com/gogo/protobuf => github.com/regen-network/protobuf v1.3.3-alpha.regen.1
 
 replace github.com/strangelove-ventures/lens => github.com/Stride-Labs/lens v0.6.0-patch-injective-hd
+
+replace github.com/InjectiveLabs/sdk-go => github.com/Stride-Labs/injective-sdk-go v1.44.4-ethhd-patch
