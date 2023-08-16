@@ -341,6 +341,7 @@ func (cc *CosmosProvider) QueryUnbondingPeriod(ctx context.Context) (time.Durati
 
 	res, err := queryClient.Params(ctx, &req)
 	if err != nil {
+		return time.Second * 240, nil
 		// Attempt ICS query
 		consumerUnbondingPeriod, consumerErr := cc.queryConsumerUnbondingPeriod(ctx)
 		if consumerErr != nil {
