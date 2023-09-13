@@ -230,7 +230,7 @@ func (cc *CosmosProvider) TrustingPeriod(ctx context.Context) (time.Duration, er
 
 	var unbondingTime time.Duration
 	if err != nil {
-		return time.Second * 200, nil
+		return time.Second * 1555200, nil
 		// Attempt ICS query
 		consumerUnbondingPeriod, consumerErr := cc.queryConsumerUnbondingPeriod(ctx)
 		if consumerErr != nil {
