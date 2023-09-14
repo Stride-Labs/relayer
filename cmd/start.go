@@ -156,27 +156,6 @@ $ %s start demo-path2 --max-tx-size 10`, appName, appName, appName, appName)),
 				return err
 			}
 
-			stuckQueryID, err := cmd.Flags().GetString(flagStuckQueryID)
-			if err != nil {
-				return err
-			}
-			stuckQueryChainID, err := cmd.Flags().GetString(flagStuckQueryChainID)
-			if err != nil {
-				return err
-			}
-			stuckQueryConnectionID, err := cmd.Flags().GetString(flagStuckQueryConnectionID)
-			if err != nil {
-				return err
-			}
-			stuckQueryType, err := cmd.Flags().GetString(flagStuckQueryType)
-			if err != nil {
-				return err
-			}
-			stuckQueryRequestData, err := cmd.Flags().GetString(flagStuckQueryRequestData)
-			if err != nil {
-				return err
-			}
-
 			var stuckPacket *processor.StuckPacket
 
 			if stuckPacketChainID != "" {
@@ -196,29 +175,6 @@ $ %s start demo-path2 --max-tx-size 10`, appName, appName, appName, appName)),
 				}
 			}
 
-			var stuckQuery *processor.StuckQuery
-			if stuckQueryID != "" {
-				if stuckQueryChainID == "" {
-					return fmt.Errorf("stuck-query-id is set, but stuck-query-chain-id is not")
-				}
-				if stuckQueryConnectionID == "" {
-					return fmt.Errorf("stuck-query-id is set, but stuck-query-connection-id is not")
-				}
-				if stuckQueryType == "" {
-					return fmt.Errorf("stuck-query-id is set, but stuck-query-type is not")
-				}
-				if stuckQueryRequestData == "" {
-					return fmt.Errorf("stuck-query-id is set, but stuck-query-request-data is not")
-				}
-				stuckQuery = &processor.StuckQuery{
-					QueryID:      stuckQueryID,
-					ChainID:      stuckQueryChainID,
-					ConnectionID: stuckQueryConnectionID,
-					QueryType:    stuckQueryType,
-					RequestData:  stuckQueryRequestData,
-				}
-			}
-
 			rlyErrCh := relayer.StartRelayer(
 				cmd.Context(),
 				a.log,
@@ -233,7 +189,6 @@ $ %s start demo-path2 --max-tx-size 10`, appName, appName, appName, appName)),
 				initialBlockHistory,
 				prometheusMetrics,
 				stuckPacket,
-				stuckQuery,
 			)
 
 			// Block until the error channel sends a message.
@@ -258,6 +213,5 @@ $ %s start demo-path2 --max-tx-size 10`, appName, appName, appName, appName)),
 	cmd = flushIntervalFlag(a.viper, cmd)
 	cmd = memoFlag(a.viper, cmd)
 	cmd = stuckPacketFlags(a.viper, cmd)
-	cmd = stuckQueryFlags(a.viper, cmd)
 	return cmd
 }

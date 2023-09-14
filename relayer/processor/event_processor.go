@@ -13,7 +13,6 @@ type EventProcessorBuilder struct {
 	pathProcessors      PathProcessors
 	messageLifecycle    MessageLifecycle
 	stuckPacket         *StuckPacket
-	stuckQuery          *StuckQuery
 }
 
 // EventProcessor is a built instance that is ready to be executed with Run(ctx).
@@ -23,7 +22,6 @@ type EventProcessor struct {
 	pathProcessors      PathProcessors
 	messageLifecycle    MessageLifecycle
 	stuckPacket         *StuckPacket
-	stuckQuery          *StuckQuery
 }
 
 // NewEventProcessor creates a builder than can be used to construct a multi-ChainProcessor, multi-PathProcessor topology for the relayer.
@@ -71,12 +69,6 @@ func (ep EventProcessorBuilder) WithStuckPacket(stuckPacket *StuckPacket) EventP
 	return ep
 }
 
-// WithStuckQuery sets the stuck query configuration.
-func (ep EventProcessorBuilder) WithStuckQuery(stuckQuery *StuckQuery) EventProcessorBuilder {
-	ep.stuckQuery = stuckQuery
-	return ep
-}
-
 // Build links the relevant ChainProcessors and PathProcessors, then returns an EventProcessor that can be used to run the ChainProcessors and PathProcessors.
 func (ep EventProcessorBuilder) Build() EventProcessor {
 	for _, chainProcessor := range ep.chainProcessors {
@@ -111,7 +103,7 @@ func (ep EventProcessor) Run(ctx context.Context) error {
 	for _, chainProcessor := range ep.chainProcessors {
 		chainProcessor := chainProcessor
 		eg.Go(func() error {
-			err := chainProcessor.Run(runCtx, ep.initialBlockHistory, ep.stuckPacket, ep.stuckQuery)
+			err := chainProcessor.Run(runCtx, ep.initialBlockHistory, ep.stuckPacket)
 			// Signal the other chain processors to exit.
 			runCtxCancel()
 			return err

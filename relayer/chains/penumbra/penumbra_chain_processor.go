@@ -157,7 +157,6 @@ func (pcp *PenumbraChainProcessor) Run(
 	ctx context.Context,
 	initialBlockHistory uint64,
 	_ *processor.StuckPacket,
-	_ *processor.StuckQuery,
 ) error {
 	minQueryLoopDuration := pcp.chainProvider.PCfg.MinLoopDuration
 	if minQueryLoopDuration == 0 {

@@ -210,6 +210,7 @@ type queryCyclePersistence struct {
 	minQueryLoopDuration        time.Duration
 	lastBalanceUpdate           time.Time
 	balanceUpdateWaitDuration   time.Duration
+	flushedQueries              bool
 }
 
 // Run starts the query loop for the chain which will gather applicable ibc messages and push events out to the relevant PathProcessors.
@@ -219,7 +220,6 @@ func (ccp *CosmosChainProcessor) Run(
 	ctx context.Context,
 	initialBlockHistory uint64,
 	stuckPacket *processor.StuckPacket,
-	stuckQuery *processor.StuckQuery,
 ) error {
 	minQueryLoopDuration := ccp.chainProvider.PCfg.MinLoopDuration
 	if minQueryLoopDuration == 0 {
@@ -282,7 +282,7 @@ func (ccp *CosmosChainProcessor) Run(
 	defer ticker.Stop()
 
 	for {
-		if err := ccp.queryCycle(ctx, &persistence, stuckPacket, stuckQuery); err != nil {
+		if err := ccp.queryCycle(ctx, &persistence, stuckPacket); err != nil {
 			return err
 		}
 		select {
@@ -347,7 +347,6 @@ func (ccp *CosmosChainProcessor) queryCycle(
 	ctx context.Context,
 	persistence *queryCyclePersistence,
 	stuckPacket *processor.StuckPacket,
-	stuckQuery *processor.StuckQuery,
 ) error {
 	status, err := ccp.nodeStatusWithRetry(ctx)
 	if err != nil {
@@ -385,11 +384,11 @@ func (ccp *CosmosChainProcessor) queryCycle(
 			firstTimeInSync = true
 			ccp.log.Info("Chain is in sync")
 
-			if ccp.chainProvider.ChainId() == StrideChainID {
+			if !persistence.flushedQueries && ccp.chainProvider.ChainId() == StrideChainID {
 				ccp.log.Info("Checking for pending queries")
 				pendingQueries, err := ccp.chainProvider.QueryStridePendingQueries()
 				if err != nil {
-					return err
+					panic(err)
 				}
 
 				for _, query := range pendingQueries {
@@ -413,6 +412,7 @@ func (ccp *CosmosChainProcessor) queryCycle(
 						Height:     0,
 					}, ibcMessagesCache)
 				}
+				persistence.flushedQueries = true
 			}
 		} else {
 			ccp.log.Info("Chain is not yet in sync",

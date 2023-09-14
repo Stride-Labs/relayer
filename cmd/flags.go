@@ -57,11 +57,6 @@ const (
 	flagStuckPacketChainID      = "stuck-packet-chain-id"
 	flagStuckPacketHeightStart  = "stuck-packet-height-start"
 	flagStuckPacketHeightEnd    = "stuck-packet-height-end"
-	flagStuckQueryID            = "stuck-query-id"
-	flagStuckQueryConnectionID  = "stuck-query-connection-id"
-	flagStuckQueryChainID       = "stuck-query-chain-id"
-	flagStuckQueryType          = "stuck-query-type"
-	flagStuckQueryRequestData   = "stuck-query-request-data"
 )
 
 const (
@@ -401,30 +396,6 @@ func stuckPacketFlags(v *viper.Viper, cmd *cobra.Command) *cobra.Command {
 	}
 	cmd.Flags().Uint64(flagStuckPacketHeightEnd, 0, "height to end searching for the stuck packet(s)")
 	if err := v.BindPFlag(flagStuckPacketHeightEnd, cmd.Flags().Lookup(flagStuckPacketHeightEnd)); err != nil {
-		panic(err)
-	}
-	return cmd
-}
-
-func stuckQueryFlags(v *viper.Viper, cmd *cobra.Command) *cobra.Command {
-	cmd.Flags().String(flagStuckQueryID, "", "query ID of the stuck query")
-	if err := v.BindPFlag(flagStuckQueryID, cmd.Flags().Lookup(flagStuckQueryID)); err != nil {
-		panic(err)
-	}
-	cmd.Flags().String(flagStuckQueryConnectionID, "", "connection ID of the stuck query")
-	if err := v.BindPFlag(flagStuckQueryConnectionID, cmd.Flags().Lookup(flagStuckQueryConnectionID)); err != nil {
-		panic(err)
-	}
-	cmd.Flags().String(flagStuckQueryChainID, "", "connection ID of the stuck query")
-	if err := v.BindPFlag(flagStuckQueryChainID, cmd.Flags().Lookup(flagStuckQueryChainID)); err != nil {
-		panic(err)
-	}
-	cmd.Flags().String(flagStuckQueryType, "", "query type of the stuck query")
-	if err := v.BindPFlag(flagStuckQueryType, cmd.Flags().Lookup(flagStuckQueryType)); err != nil {
-		panic(err)
-	}
-	cmd.Flags().String(flagStuckQueryRequestData, "", "request data of the stuck query")
-	if err := v.BindPFlag(flagStuckQueryRequestData, cmd.Flags().Lookup(flagStuckQueryRequestData)); err != nil {
 		panic(err)
 	}
 	return cmd

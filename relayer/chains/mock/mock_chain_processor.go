@@ -77,7 +77,6 @@ func (mcp *MockChainProcessor) Run(
 	ctx context.Context,
 	initialBlockHistory uint64,
 	_ *processor.StuckPacket,
-	_ *processor.StuckQuery,
 ) error {
 	// this will be used for persistence across query cycle loop executions
 	persistence := queryCyclePersistence{
