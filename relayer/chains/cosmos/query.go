@@ -4,8 +4,11 @@ import (
 	"context"
 	"encoding/binary"
 	"encoding/hex"
+	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
+	"net/http"
 	"strconv"
 	"strings"
 	"sync"
@@ -1289,4 +1292,36 @@ func (cc *CosmosProvider) QueryConsensusStateABCI(ctx context.Context, clientID 
 		Proof:          proofBz,
 		ProofHeight:    proofHeight,
 	}, nil
+}
+
+type StuckQuery struct {
+	QueryID      string `json:"id"`
+	ChainID      string `json:"chain_id"`
+	ConnectionID string `json:"connection_id"`
+	QueryType    string `json:"query_type"`
+	RequestData  string `json:"request_data"`
+}
+
+type PendingQueriesResponse struct {
+	Queries []StuckQuery `json:"pending_queries"`
+}
+
+func (cc *CosmosProvider) QueryStridePendingQueries() (queries []StuckQuery, err error) {
+	resp, err := http.Get(fmt.Sprintf("%s/Stride-Labs/stride/interchainquery/pending_queries", cc.PCfg.APIAddr))
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	var pendingQueries PendingQueriesResponse
+	if err := json.Unmarshal(body, &pendingQueries); err != nil {
+		return nil, err
+	}
+
+	return pendingQueries.Queries, nil
 }

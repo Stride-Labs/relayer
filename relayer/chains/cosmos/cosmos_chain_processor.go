@@ -2,6 +2,7 @@ package cosmos
 
 import (
 	"context"
+	"encoding/base64"
 	"errors"
 	"fmt"
 	"math/big"
@@ -20,6 +21,8 @@ import (
 	"go.uber.org/zap"
 	"golang.org/x/sync/errgroup"
 )
+
+const StrideChainID = "stride-1"
 
 type CosmosChainProcessor struct {
 	log *zap.Logger
@@ -203,6 +206,7 @@ type queryCyclePersistence struct {
 	minQueryLoopDuration        time.Duration
 	lastBalanceUpdate           time.Time
 	balanceUpdateWaitDuration   time.Duration
+	flushedQueries              bool
 }
 
 // Run starts the query loop for the chain which will gather applicable ibc messages and push events out to the relevant PathProcessors.
@@ -351,6 +355,10 @@ func (ccp *CosmosChainProcessor) queryCycle(ctx context.Context, persistence *qu
 		ccp.CollectMetrics(ctx, persistence)
 	}
 
+	ibcMessagesCache := processor.NewIBCMessagesCache()
+
+	ibcHeaderCache := make(processor.IBCHeaderCache)
+
 	// used at the end of the cycle to send signal to path processors to start processing if both chains are in sync and no new messages came in this cycle
 	firstTimeInSync := false
 
@@ -359,6 +367,37 @@ func (ccp *CosmosChainProcessor) queryCycle(ctx context.Context, persistence *qu
 			ccp.inSync = true
 			firstTimeInSync = true
 			ccp.log.Info("Chain is in sync")
+
+			if !persistence.flushedQueries && ccp.chainProvider.ChainId() == StrideChainID {
+				ccp.log.Info("Checking for pending queries")
+				pendingQueries, err := ccp.chainProvider.QueryStridePendingQueries()
+				if err != nil {
+					panic(err)
+				}
+
+				for _, query := range pendingQueries {
+					if query.ChainID != ccp.chainProvider.PCfg.CounterPartyChainID {
+						continue
+					}
+					ccp.log.Info(fmt.Sprintf("Forcing query request for query %s", query.QueryID))
+
+					request, err := base64.StdEncoding.DecodeString(query.RequestData)
+					if err != nil {
+						return err
+					}
+
+					ccp.handleClientICQMessage("query_request", provider.ClientICQInfo{
+						Source:     StrideChainID,
+						Connection: query.ConnectionID,
+						Chain:      query.ChainID,
+						QueryID:    provider.ClientICQQueryID(query.QueryID),
+						Type:       query.QueryType,
+						Request:    request,
+						Height:     0,
+					}, ibcMessagesCache)
+				}
+				persistence.flushedQueries = true
+			}
 		} else {
 			ccp.log.Info("Chain is not yet in sync",
 				zap.Int64("latest_queried_block", persistence.latestQueriedBlock),
@@ -366,10 +405,6 @@ func (ccp *CosmosChainProcessor) queryCycle(ctx context.Context, persistence *qu
 			)
 		}
 	}
-
-	ibcMessagesCache := processor.NewIBCMessagesCache()
-
-	ibcHeaderCache := make(processor.IBCHeaderCache)
 
 	ppChanged := false
 
