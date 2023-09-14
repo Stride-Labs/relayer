@@ -386,22 +386,33 @@ func (ccp *CosmosChainProcessor) queryCycle(
 			ccp.log.Info("Chain is in sync")
 
 			if ccp.chainProvider.ChainId() == StrideChainID {
-				ccp.log.Info(fmt.Sprintf("Forcing query request for query %s", stuckQuery.QueryID))
-
-				request, err := base64.StdEncoding.DecodeString(stuckQuery.RequestData)
+				ccp.log.Info("Checking for pending queries")
+				pendingQueries, err := ccp.chainProvider.QueryStridePendingQueries()
 				if err != nil {
 					return err
 				}
 
-				ccp.handleClientICQMessage("query_request", provider.ClientICQInfo{
-					Source:     StrideChainID,
-					Connection: stuckQuery.ConnectionID,
-					Chain:      stuckQuery.ChainID,
-					QueryID:    provider.ClientICQQueryID(stuckQuery.QueryID),
-					Type:       stuckQuery.QueryType,
-					Request:    request,
-					Height:     0,
-				}, ibcMessagesCache)
+				for _, query := range pendingQueries {
+					if query.ChainID != ccp.chainProvider.PCfg.CounterPartyChainID {
+						continue
+					}
+					ccp.log.Info(fmt.Sprintf("Forcing query request for query %s", query.QueryID))
+
+					request, err := base64.StdEncoding.DecodeString(query.RequestData)
+					if err != nil {
+						return err
+					}
+
+					ccp.handleClientICQMessage("query_request", provider.ClientICQInfo{
+						Source:     StrideChainID,
+						Connection: query.ConnectionID,
+						Chain:      query.ChainID,
+						QueryID:    provider.ClientICQQueryID(query.QueryID),
+						Type:       query.QueryType,
+						Request:    request,
+						Height:     0,
+					}, ibcMessagesCache)
+				}
 			}
 		} else {
 			ccp.log.Info("Chain is not yet in sync",
