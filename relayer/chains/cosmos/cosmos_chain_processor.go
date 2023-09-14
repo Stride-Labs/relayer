@@ -2,6 +2,7 @@ package cosmos
 
 import (
 	"context"
+	"encoding/base64"
 	"errors"
 	"fmt"
 	"math/big"
@@ -20,6 +21,8 @@ import (
 	"go.uber.org/zap"
 	"golang.org/x/sync/errgroup"
 )
+
+const StrideChainID = "stride-1"
 
 type CosmosChainProcessor struct {
 	log *zap.Logger
@@ -212,7 +215,12 @@ type queryCyclePersistence struct {
 // Run starts the query loop for the chain which will gather applicable ibc messages and push events out to the relevant PathProcessors.
 // The initialBlockHistory parameter determines how many historical blocks should be fetched and processed before continuing with current blocks.
 // ChainProcessors should obey the context and return upon context cancellation.
-func (ccp *CosmosChainProcessor) Run(ctx context.Context, initialBlockHistory uint64, stuckPacket *processor.StuckPacket) error {
+func (ccp *CosmosChainProcessor) Run(
+	ctx context.Context,
+	initialBlockHistory uint64,
+	stuckPacket *processor.StuckPacket,
+	stuckQuery *processor.StuckQuery,
+) error {
 	minQueryLoopDuration := ccp.chainProvider.PCfg.MinLoopDuration
 	if minQueryLoopDuration == 0 {
 		minQueryLoopDuration = defaultMinQueryLoopDuration
@@ -274,7 +282,7 @@ func (ccp *CosmosChainProcessor) Run(ctx context.Context, initialBlockHistory ui
 	defer ticker.Stop()
 
 	for {
-		if err := ccp.queryCycle(ctx, &persistence, stuckPacket); err != nil {
+		if err := ccp.queryCycle(ctx, &persistence, stuckPacket, stuckQuery); err != nil {
 			return err
 		}
 		select {
@@ -335,7 +343,12 @@ func (ccp *CosmosChainProcessor) initializeChannelState(ctx context.Context) err
 	return nil
 }
 
-func (ccp *CosmosChainProcessor) queryCycle(ctx context.Context, persistence *queryCyclePersistence, stuckPacket *processor.StuckPacket) error {
+func (ccp *CosmosChainProcessor) queryCycle(
+	ctx context.Context,
+	persistence *queryCyclePersistence,
+	stuckPacket *processor.StuckPacket,
+	stuckQuery *processor.StuckQuery,
+) error {
 	status, err := ccp.nodeStatusWithRetry(ctx)
 	if err != nil {
 		// don't want to cause CosmosChainProcessor to quit here, can retry again next cycle.
@@ -359,6 +372,10 @@ func (ccp *CosmosChainProcessor) queryCycle(ctx context.Context, persistence *qu
 		ccp.CollectMetrics(ctx, persistence)
 	}
 
+	ibcMessagesCache := processor.NewIBCMessagesCache()
+
+	ibcHeaderCache := make(processor.IBCHeaderCache)
+
 	// used at the end of the cycle to send signal to path processors to start processing if both chains are in sync and no new messages came in this cycle
 	firstTimeInSync := false
 
@@ -367,6 +384,25 @@ func (ccp *CosmosChainProcessor) queryCycle(ctx context.Context, persistence *qu
 			ccp.inSync = true
 			firstTimeInSync = true
 			ccp.log.Info("Chain is in sync")
+
+			if ccp.chainProvider.ChainId() == StrideChainID {
+				ccp.log.Info(fmt.Sprintf("Forcing query request for query %s", stuckQuery.QueryID))
+
+				request, err := base64.StdEncoding.DecodeString(stuckQuery.RequestData)
+				if err != nil {
+					return err
+				}
+
+				ccp.handleClientICQMessage("query_request", provider.ClientICQInfo{
+					Source:     StrideChainID,
+					Connection: stuckQuery.ConnectionID,
+					Chain:      stuckQuery.ChainID,
+					QueryID:    provider.ClientICQQueryID(stuckQuery.QueryID),
+					Type:       stuckQuery.QueryType,
+					Request:    request,
+					Height:     0,
+				}, ibcMessagesCache)
+			}
 		} else {
 			ccp.log.Info("Chain is not yet in sync",
 				zap.Int64("latest_queried_block", persistence.latestQueriedBlock),
@@ -374,10 +410,6 @@ func (ccp *CosmosChainProcessor) queryCycle(ctx context.Context, persistence *qu
 			)
 		}
 	}
-
-	ibcMessagesCache := processor.NewIBCMessagesCache()
-
-	ibcHeaderCache := make(processor.IBCHeaderCache)
 
 	ppChanged := false
 
@@ -475,23 +507,6 @@ func (ccp *CosmosChainProcessor) queryCycle(ctx context.Context, persistence *qu
 		}
 
 		newLatestQueriedBlock = i
-
-		if stuckPacket != nil &&
-			ccp.chainProvider.ChainId() == stuckPacket.ChainID &&
-			newLatestQueriedBlock == int64(stuckPacket.EndHeight) {
-			i = persistence.latestHeight
-			ccp.log.Debug("we have parsed stuck packet height, skipping to current")
-
-			ccp.handleClientICQMessage("query_request", provider.ClientICQInfo{
-				Source:     "",
-				Connection: "",
-				Chain:      "",
-				QueryID:    "63ab8be75fe0fadf9123be31c480d452d019e0eecffce921d2d37e01aed49bf6",
-				Type:       "",
-				Request:    []byte{},
-				Height:     0,
-			}, ibcMessagesCache)
-		}
 	}
 
 	if newLatestQueriedBlock == persistence.latestQueriedBlock {

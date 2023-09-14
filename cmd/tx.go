@@ -812,6 +812,7 @@ $ %s tx flush demo-path channel-0`,
 				0,
 				nil,
 				nil,
+				nil,
 			)
 
 			// Block until the error channel sends a message.
