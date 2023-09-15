@@ -58,7 +58,8 @@ type CosmosProviderConfig struct {
 	SigningAlgorithm    string                     `json:"signing-algorithm" yaml:"signing-algorithm"`
 	Broadcast           provider.BroadcastMode     `json:"broadcast-mode" yaml:"broadcast-mode"`
 	MinLoopDuration     time.Duration              `json:"min-loop-duration" yaml:"min-loop-duration"`
-	CounterPartyChainID string                     `json:"counterparty-chain-id" yaml:"counterparty-chain-id"`
+	CounterpartyChainID string                     `json:"counterparty-chain-id" yaml:"counterparty-chain-id"`
+	QueryBlacklist      []string                   `json:"query-blacklist" yaml:"query-blacklist"`
 	ExtensionOptions    []provider.ExtensionOption `json:"extension-options" yaml:"extension-options"`
 
 	//If FeeGrantConfiguration is set, TXs submitted by the ChainClient will be signed by the FeeGrantees in a round-robin fashion by default.

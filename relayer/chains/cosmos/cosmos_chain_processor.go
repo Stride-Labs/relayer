@@ -392,9 +392,23 @@ func (ccp *CosmosChainProcessor) queryCycle(
 				}
 
 				for _, query := range pendingQueries {
-					if query.ChainID != ccp.chainProvider.PCfg.CounterPartyChainID {
+					if query.ChainID != ccp.chainProvider.PCfg.CounterpartyChainID {
 						continue
 					}
+
+					// Ignore blacklisted queries that we know will fail
+					queryBlacklisted := false
+					for _, blacklistedQueryID := range ccp.chainProvider.PCfg.QueryBlacklist {
+						if query.QueryID == blacklistedQueryID {
+							queryBlacklisted = true
+							break
+						}
+					}
+					if queryBlacklisted {
+						ccp.log.Info(fmt.Sprintf("Identified blacklisted query %s, skipping", query.QueryID))
+						continue
+					}
+
 					ccp.log.Info(fmt.Sprintf("Forcing query request for query %s", query.QueryID))
 
 					request, err := base64.StdEncoding.DecodeString(query.RequestData)
