@@ -182,6 +182,18 @@ func ModifyGenesisStrideCounterparty() func(ibc.ChainConfig, []byte) ([]byte, er
 			return nil, err
 		}
 
+		// if err := dyno.Set(g, []string{},
+		// 	"app_state", "prices", "market_params",
+		// ); err != nil {
+		// 	return nil, err
+		// }
+
+		// if err := dyno.Set(g, []string{},
+		// 	"app_state", "prices", "market_prices",
+		// ); err != nil {
+		// 	return nil, err
+		// }
+
 		out, err := json.Marshal(g)
 		if err != nil {
 			return nil, fmt.Errorf("failed to marshal genesis bytes to json: %w", err)
