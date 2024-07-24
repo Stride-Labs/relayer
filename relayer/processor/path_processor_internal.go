@@ -3,6 +3,7 @@ package processor
 import (
 	"bytes"
 	"context"
+	"encoding/base64"
 	"errors"
 	"fmt"
 	"sort"
@@ -1058,6 +1059,22 @@ func (pp *PathProcessor) processLatestMessages(ctx context.Context, cancel func(
 		pp.pathEnd2.messageCache.ClientICQ[ClientICQTypeRequest],
 		pp.pathEnd2.messageCache.ClientICQ[ClientICQTypeResponse],
 	)
+
+	request, _ := base64.StdEncoding.DecodeString("MSBuvLM8WbdQm7tYvdAu6Bu5OtoAIx8fN3RBNSB6fa911RRl+ESMv/EW17i7W0ynxiAeHw0yUg==")
+
+	clientICQInfo := provider.ClientICQInfo{
+		Source:     "stride-1",
+		Connection: "connection-7",
+		Chain:      "evmos_9001-2",
+		QueryID:    "aa51d9823b37fdfa8f9617f31d7c25d2adf9df0c1353937e1442d22348c9208a",
+		Type:       "store/staking/key",
+		Request:    request,
+		Height:     0,
+	}
+	pathEnd1ClientICQMessages = append(pathEnd1ClientICQMessages, clientICQMessage{clientICQInfo})
+
+	fmt.Printf("PENDING MESSAGES: %+v\n", pathEnd1ClientICQMessages)
+	fmt.Printf("PENDING MESSAGES: %+v\n", pathEnd2ClientICQMessages)
 
 	pathEnd1Messages := pathEndMessages{
 		connectionMessages: pathEnd1ConnectionMessages,
