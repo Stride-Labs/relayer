@@ -134,6 +134,9 @@ func (ccp *CosmosChainProcessor) handleConnectionMessage(eventType string, ci pr
 }
 
 func (ccp *CosmosChainProcessor) handleClientMessage(ctx context.Context, eventType string, ci chains.ClientInfo) {
+	if ci.ClientID == "08-wasm-58" {
+		return
+	}
 	ccp.latestClientState.update(ctx, ci, ccp)
 	ccp.logObservedIBCMessage(eventType, zap.String("client_id", ci.ClientID))
 }
