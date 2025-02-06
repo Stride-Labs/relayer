@@ -3,6 +3,7 @@ package cosmos
 import (
 	"context"
 	"encoding/hex"
+	"fmt"
 
 	conntypes "github.com/cosmos/ibc-go/v8/modules/core/03-connection/types"
 	chantypes "github.com/cosmos/ibc-go/v8/modules/core/04-channel/types"
@@ -24,7 +25,18 @@ func (ccp *CosmosChainProcessor) handleMessage(ctx context.Context, m chains.Ibc
 	case *chains.ClientInfo:
 		ccp.handleClientMessage(ctx, m.EventType, *t)
 	case *chains.ClientICQInfo:
-		ccp.handleClientICQMessage(m.EventType, provider.ClientICQInfo(*t), c)
+		queryBlacklisted := false
+		for _, blacklistedQueryID := range ccp.chainProvider.PCfg.QueryBlacklist {
+			if t.QueryID == provider.ClientICQQueryID(blacklistedQueryID) {
+				queryBlacklisted = true
+				break
+			}
+		}
+		if !queryBlacklisted {
+			ccp.handleClientICQMessage(m.EventType, provider.ClientICQInfo(*t), c)
+		} else {
+			ccp.log.Info(fmt.Sprintf("Skipping blacklisted query %s", t.QueryID))
+		}
 	}
 }
 

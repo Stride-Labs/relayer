@@ -4,8 +4,11 @@ import (
 	"context"
 	"encoding/binary"
 	"encoding/hex"
+	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
+	"net/http"
 	"strconv"
 	"strings"
 	"sync"
@@ -33,6 +36,7 @@ import (
 	ibcexported "github.com/cosmos/ibc-go/v8/modules/core/exported"
 	tmclient "github.com/cosmos/ibc-go/v8/modules/light-clients/07-tendermint"
 	"github.com/cosmos/relayer/v2/relayer/chains"
+	"github.com/cosmos/relayer/v2/relayer/processor"
 	"github.com/cosmos/relayer/v2/relayer/provider"
 	"go.uber.org/zap"
 	"golang.org/x/sync/errgroup"
@@ -1293,4 +1297,28 @@ func (cc *CosmosProvider) QueryConsensusStateABCI(ctx context.Context, clientID 
 		Proof:          proofBz,
 		ProofHeight:    proofHeight,
 	}, nil
+}
+
+type PendingQueriesResponse struct {
+	Queries []processor.StuckQuery `json:"pending_queries"`
+}
+
+func (cc *CosmosProvider) QueryStridePendingQueries() (queries []processor.StuckQuery, err error) {
+	resp, err := http.Get(fmt.Sprintf("%s/Stride-Labs/stride/interchainquery/pending_queries", cc.PCfg.APIAddr))
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	var pendingQueries PendingQueriesResponse
+	if err := json.Unmarshal(body, &pendingQueries); err != nil {
+		return nil, err
+	}
+
+	return pendingQueries.Queries, nil
 }

@@ -692,3 +692,12 @@ type StuckPacket struct {
 	StartHeight uint64
 	EndHeight   uint64
 }
+
+// StuckQuery is used for forcing the contents of an ICQ into a message
+type StuckQuery struct {
+	QueryID      string `json:"id"`
+	ChainID      string `json:"chain_id"`
+	ConnectionID string `json:"connection_id"`
+	QueryType    string `json:"query_type"`
+	RequestData  string `json:"request_data"`
+}
