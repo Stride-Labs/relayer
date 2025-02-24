@@ -302,6 +302,8 @@ func (msg clientICQMessage) assemble(
 	ctx, cancel := context.WithTimeout(ctx, interchainQueryTimeout)
 	defer cancel()
 
+	fmt.Println("[DEBUG] Query ID:", msg.info.QueryID)
+
 	proof, err := src.chainProvider.QueryICQWithProof(ctx, msg.info.Type, msg.info.Request, src.latestBlock.Height-1)
 	if err != nil {
 		return nil, fmt.Errorf("error during interchain query: %w", err)

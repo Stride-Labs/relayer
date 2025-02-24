@@ -1303,6 +1303,8 @@ func (cc *CosmosProvider) MsgUpdateClientHeader(latestHeader provider.IBCHeader,
 }
 
 func (cc *CosmosProvider) QueryICQWithProof(ctx context.Context, path string, request []byte, height uint64) (provider.ICQProof, error) {
+	fmt.Println("[DEBUG] Querying path:", path)
+
 	slashSplit := strings.Split(path, "/")
 	req := abci.RequestQuery{
 		Path:   path,
@@ -1311,10 +1313,17 @@ func (cc *CosmosProvider) QueryICQWithProof(ctx context.Context, path string, re
 		Prove:  slashSplit[len(slashSplit)-1] == "key",
 	}
 
+	fmt.Println("[DEBUG] Request data:", string(request))
+
 	res, err := cc.QueryABCI(ctx, req)
 	if err != nil {
 		return provider.ICQProof{}, fmt.Errorf("failed to execute interchain query: %w", err)
 	}
+
+	fmt.Println("[DEBUG] Response code:", res.Code)
+	fmt.Println("[DEBUG] Response height:", res.Height)
+	fmt.Println("[DEBUG] Response value:", res.Value)
+	fmt.Println("[DEBUG] Response proof opts:", res.ProofOps.Ops)
 
 	return provider.ICQProof{
 		Result:   res.Value,
