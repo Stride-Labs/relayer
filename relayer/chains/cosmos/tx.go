@@ -1313,7 +1313,7 @@ func (cc *CosmosProvider) QueryICQWithProof(ctx context.Context, path string, re
 		Prove:  slashSplit[len(slashSplit)-1] == "key",
 	}
 
-	fmt.Println("[DEBUG] Request data:", string(request))
+	fmt.Printf("[DEBUG] Request data: %v\n", request)
 
 	res, err := cc.QueryABCI(ctx, req)
 	if err != nil {
