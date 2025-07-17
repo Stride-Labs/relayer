@@ -381,6 +381,19 @@ func (ccp *CosmosChainProcessor) queryCycle(ctx context.Context, persistence *qu
 
 			if !persistence.flushedQueries && ccp.chainProvider.ChainId() == StrideChainID {
 				ccp.log.Info("Checking for pending queries")
+
+				// IDK if this is the right way to force it
+				// request, _ := base64.StdEncoding.DecodeString("AiDhvShfsI4oxbCsQPzdyH5yt5mJ5aXTi+FMqX052BtPX2FJU0xN")
+				// ccp.handleClientICQMessage("query_request", provider.ClientICQInfo{
+				// 	Source:     "stride-1",
+				// 	Connection: "connection-143",
+				// 	Chain:      "haqq_11235-1",
+				// 	QueryID:    "113fe0558cca901e371ca7362efcb23885966fa8d9e671a7092efc381ac93fe7",
+				// 	Type:       "store/bank/key",
+				// 	Request:    request,
+				// 	Height:     0,
+				// }, ibcMessagesCache)
+
 				pendingQueries, err := ccp.chainProvider.QueryStridePendingQueries()
 				if err != nil {
 					panic(err)
